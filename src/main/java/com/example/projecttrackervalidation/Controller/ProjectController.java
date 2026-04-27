@@ -20,16 +20,16 @@ public class ProjectController {
     @PostMapping("/add")
     public ResponseEntity<?> addProject(@RequestBody @Valid Project newProject, Errors errors){
         if(errors.hasErrors()){
-            return ResponseEntity.status(400).body(errors.getFieldError().getDefaultMessage());
+            return ResponseEntity.status(400).body(new ApiResponse(errors.getFieldError().getDefaultMessage()));
         }
 
         for(Project p: projects){
             //check if id is already exist
             if(p.getId().equalsIgnoreCase(newProject.getId()))
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( new ApiResponse("The ID: " + newProject.getId() + " is already used please enter another ID."));
+                return ResponseEntity.status(400).body(new ApiResponse("The ID: " + newProject.getId() + " is already used please enter another ID."));
             //check if title is already exist
             if(p.getTitle().equalsIgnoreCase(newProject.getTitle()))
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( new ApiResponse("This project is already exist."));
+                return ResponseEntity.status(400).body(new ApiResponse("This project is already exist."));
         }
 
         projects.add(newProject);
@@ -44,16 +44,23 @@ public class ProjectController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateProject(@PathVariable String id, @RequestBody @Valid Project newProject, Errors errors){
         if(errors.hasErrors()){
-            return ResponseEntity.status(400).body(errors.getFieldError().getDefaultMessage());
+            return ResponseEntity.status(400).body(new ApiResponse(errors.getFieldError().getDefaultMessage()));
+        }
+
+        //make sure the user doesn't change the title to an already existed title
+        for (Project p : projects) {
+            if (p.getTitle().equalsIgnoreCase(newProject.getTitle()) && !p.getId().equalsIgnoreCase(id))
+                return ResponseEntity.status(400).body(new ApiResponse("A project with this title already exists."));
         }
 
         for(int i=0; i < projects.size(); i++){
             if(projects.get(i).getId().equalsIgnoreCase(id)){
+                newProject.setId(projects.get(i).getId()); //make sure the user doesn't change the id
                 projects.set(i, newProject);
                 return ResponseEntity.status(200).body(new ApiResponse("Project updated successfully."));
             }
         }
-        return ResponseEntity.status(400).body(new ApiResponse("Project with ID: " + id + " not found."));
+        return ResponseEntity.status(404).body(new ApiResponse("Project with ID: " + id + " not found."));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -64,7 +71,7 @@ public class ProjectController {
                 return ResponseEntity.status(200).body(new ApiResponse("Project deleted successfully"));
             }
         }
-        return ResponseEntity.status(400).body(new ApiResponse("Project with ID: " + id + " not found."));
+        return ResponseEntity.status(404).body(new ApiResponse("Project with ID: " + id + " not found."));
     }
 
 
@@ -83,7 +90,7 @@ public class ProjectController {
                 return ResponseEntity.status(200).body(new ApiResponse("Project status updated successfully."));
             }
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("Project with ID: " + id + " not found."));
+        return ResponseEntity.status(404).body(new ApiResponse("Project with ID: " + id + " not found."));
     }
 
     @GetMapping("/get-title/{title}")
@@ -93,7 +100,7 @@ public class ProjectController {
                 return ResponseEntity.status(200).body(project);
             }
         }
-        return ResponseEntity.status(400).body(new ApiResponse("There is no project with title: " + title));
+        return ResponseEntity.status(404).body(new ApiResponse("There is no project with title: " + title));
     }
 
     @GetMapping("/get-company/{companyName}")
@@ -104,7 +111,7 @@ public class ProjectController {
                 companyProjects.add(project);
         }
         if(companyProjects.isEmpty())
-            return ResponseEntity.status(400).body(new ApiResponse("Company: " + companyName + " doesn't have any projects."));
+            return ResponseEntity.status(404).body(new ApiResponse("Company: " + companyName + " doesn't have any projects."));
 
         return ResponseEntity.status(200).body(companyProjects);
     }

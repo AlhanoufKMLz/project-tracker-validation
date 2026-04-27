@@ -10,23 +10,23 @@ import lombok.Data;
 @AllArgsConstructor
 public class Project {
 
-    @NotBlank(message = "ID cannot be null")
-    @Size(min = 2, message = "ID should be 2 or more letters.")
+    @NotBlank(message = "ID cannot be blank")
+    @Size(min = 2, message = "ID must be at least 2 letters.")
     private String id;
 
-    @NotBlank(message = "Title cannot be null")
-    @Size(min = 8, message = "Title should be 8 or more letters.")
+    @NotBlank(message = "Title cannot be blank")
+    @Size(min = 8, max = 50, message = "Title must be between 8 and 50 letters.")
     private String title;
 
-    @NotBlank(message = "Description cannot be null")
-    @Size(min = 15, message = "Description should be 15 or more letters.")
+    @NotBlank(message = "Description cannot be blank")
+    @Size(min = 15, max = 500, message = "Description must be between 15 and 500 letters.")
     private String description;
 
-    @NotBlank(message = "Status cannot be null")
-    @Pattern(regexp = "^(Not Started|In Progress|Completed)$")
+    @NotBlank(message = "Status cannot be blank")
+    @Pattern(regexp = "^(Not Started|In Progress|Completed)$", message = "Status must be: Not Started, In Progress, or Completed")
     private String status;
 
-    @NotBlank(message = "Company name cannot be null")
-    @Size(min = 6, message = "Company name should be 6 or more letters.")
+    @NotBlank(message = "Company name cannot be blank")
+    @Size(min = 6, message = "Company must be at least 6 letters.")
     private String companyName;
 }
