@@ -85,7 +85,7 @@ public class ProjectController {
                 else if(project.getStatus().equals("In Progress"))
                     project.setStatus("Completed");
                 else
-                    project.setStatus("Not Started");
+                    return ResponseEntity.status(400).body(new ApiResponse("Project is already completed."));
 
                 return ResponseEntity.status(200).body(new ApiResponse("Project status updated successfully."));
             }
